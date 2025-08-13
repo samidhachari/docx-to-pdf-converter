@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const express = require("express");          // Imports Express framework for building web server and handling HTTP requests.
 const bodyparser = require('body-parser');   // body-parser middleware to parse incoming request bodies to access form data.
 const path = require('path');                // Imports Node.js's built-in path module, useful for handling file and directory paths in a platform-independent.
@@ -16,6 +17,20 @@ app.use(bodyparser.json()); // Adds middleware to parse JSON bodies in incoming 
 // Configures multer’s storage engine to save uploaded files to disk: destination: callback specifying where to save files, here the "uploads" folder.
 // filename: callback specifying how to name the uploaded files.
 // Uses the current timestamp (Date.now()) plus the original file extension to avoid filename collisions.
+=======
+const express = require("express");
+const bodyparser = require('body-parser');
+const path = require('path');
+const multer = require('multer');
+const fs = require('fs');
+const libre = require('libreoffice-convert');
+
+const app = express();
+
+app.use(express.static('uploads'));
+app.use(bodyparser.urlencoded({ extended: false }));
+app.use(bodyparser.json());
+>>>>>>> e1fefcd555d54f457a73e7f8a2a7c51da075dcdd
 
 let storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -26,16 +41,22 @@ let storage = multer.diskStorage({
     },
 });
 
+<<<<<<< HEAD
 //Creates a multer instance configured to use the storage rules defined above.
 //This upload middleware will handle file uploads for the routes.
 let upload = multer({ storage: storage });
 
 // Defines a GET route on / (root URL). When accessed, sends the index.html file located in the current directory (__dirname) to the client.
 //This serves your HTML upload form.
+=======
+let upload = multer({ storage: storage });
+
+>>>>>>> e1fefcd555d54f457a73e7f8a2a7c51da075dcdd
 app.get('/', (req, res) => {
     res.sendFile(__dirname + "/index.html");
 });
 
+<<<<<<< HEAD
 //Defines a POST route /docxtopdf to handle form submissions with file upload. upload.single('file') processes a single uploaded file with the form field name "file".
 app.post('/docxtopdf', upload.single('file'), (req, res) => {
     const filePath = req.file.path; // Gets the path of the uploaded DOCX file saved by multer.
@@ -47,35 +68,60 @@ app.post('/docxtopdf', upload.single('file'), (req, res) => {
 // Parameters: -> fileBuffer: input file content. -> '.pdf': desired output format. -> undefined: optional conversion options (none here). -> Callback function (err, done) called when conversion finishes.
     libre.convert(fileBuffer, '.pdf', undefined, (err, done) => {
         if (err) { // If there’s an error during conversion, log it to console and send an HTTP 500 error response to client.
+=======
+app.post('/docxtopdf', upload.single('file'), (req, res) => {
+    const filePath = req.file.path;
+    const outputFileName = Date.now() + "_output.pdf";
+    const outputPath = path.join("uploads", outputFileName);
+
+    const fileBuffer = fs.readFileSync(filePath);
+    libre.convert(fileBuffer, '.pdf', undefined, (err, done) => {
+        if (err) {
+>>>>>>> e1fefcd555d54f457a73e7f8a2a7c51da075dcdd
             console.log(`Conversion error: ${err}`);
             return res.status(500).send("Error converting file");
         }
 
+<<<<<<< HEAD
         fs.writeFileSync(outputPath, done); // Writes the converted PDF data (buffer done) synchronously to the output file path.
 
         // Send the converted PDF to client
         //Sends the converted PDF file as a download to the client. res.download sets headers for file download and streams the file content. The callback logs any errors that happen during sending.
         res.download(outputPath, outputFileName, (err) => { 
+=======
+        fs.writeFileSync(outputPath, done);
+
+        // Send the converted PDF to client
+        res.download(outputPath, outputFileName, (err) => {
+>>>>>>> e1fefcd555d54f457a73e7f8a2a7c51da075dcdd
             if (err) {
                 console.log(err);
             }
 
+<<<<<<< HEAD
             // Optional: delete files after sending After sending the PDF, deletes both:
             // The original uploaded DOCX file (filePath).
             // The generated PDF (outputPath).
             // This prevents your uploads folder from filling up with temporary files.
+=======
+            // Optional: delete files after sending
+>>>>>>> e1fefcd555d54f457a73e7f8a2a7c51da075dcdd
             fs.unlinkSync(filePath);
             fs.unlinkSync(outputPath);
         });
     });
 });
 
+<<<<<<< HEAD
 // Starts the Express server and listens on port 5501.
 // When the server is ready, logs a confirmation message.
+=======
+>>>>>>> e1fefcd555d54f457a73e7f8a2a7c51da075dcdd
 app.listen(5501, () => {
     console.log("app is listening on port 5501");
 });
 
+<<<<<<< HEAD
 // Summary:
 // Your server serves an HTML form to upload DOCX files.
 // When a file is uploaded, it saves it locally.
@@ -84,6 +130,8 @@ app.listen(5501, () => {
 // Cleans up temporary files after download.
 // Runs on port 5501.
 
+=======
+>>>>>>> e1fefcd555d54f457a73e7f8a2a7c51da075dcdd
 
 
 
