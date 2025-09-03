@@ -1,12 +1,11 @@
-# 1️⃣ Base image (Debian slim variant with more libraries)
-FROM node:20-bullseye
+# 1️⃣ Use full Node image (not slim)
+FROM node:20
 
-# 2️⃣ Environment variables
+# 2️⃣ Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV HOME=/tmp
-ENV PORT=5001
 
-# 3️⃣ Install LibreOffice + fonts + utilities
+# 3️⃣ Install LibreOffice + dependencies + fonts
 RUN apt-get update && \
     apt-get install -y \
         libreoffice \
@@ -20,7 +19,6 @@ RUN apt-get update && \
         xfonts-utils \
         wget \
         unzip \
-        gnupg2 \
         libcups2 \
         libxext6 \
         libxinerama1 \
@@ -29,24 +27,26 @@ RUN apt-get update && \
         libfreetype6 \
         libglib2.0-0 \
         libxrender1 && \
-    ln -s /usr/lib/libreoffice/program/soffice /usr/bin/soffice && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    # Ensure soffice binary is accessible
+    ln -sf /usr/lib/libreoffice/program/soffice /usr/bin/soffice && \
+    # Clean up apt caches to reduce image size
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# 4️⃣ Writable config for LibreOffice
-RUN mkdir -p /tmp/.config && chmod -R 777 /tmp/.config
-
-# 5️⃣ Set working directory
+# 4️⃣ Set working directory
 WORKDIR /app
 
-# 6️⃣ Copy package.json & install deps
+# 5️⃣ Copy Node project files
 COPY package*.json ./
-RUN npm install
 
-# 7️⃣ Copy rest of the app
+# 6️⃣ Install dependencies
+RUN npm install --production
+
+# 7️⃣ Copy the rest of the project
 COPY . .
 
 # 8️⃣ Expose port
 EXPOSE 5001
 
-# 9️⃣ Start server
+# 9️⃣ Start the server
 CMD ["node", "server.js"]
