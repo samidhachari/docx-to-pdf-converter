@@ -1,12 +1,12 @@
 # 1️⃣ Base image
 FROM node:20-slim
 
-# 2️⃣ Environment for non-interactive installs + LibreOffice config
+# 2️⃣ Environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV HOME=/tmp
 ENV PORT=5001
 
-# 3️⃣ Install LibreOffice + fonts + utilities
+# 3️⃣ Install LibreOffice + fonts + utilities + create symlink
 RUN apt-get update && \
     apt-get install -y \
         libreoffice \
@@ -17,7 +17,6 @@ RUN apt-get update && \
         xfonts-utils \
         wget \
         unzip && \
-    # 3a️⃣ Symlink soffice to /usr/bin
     ln -s /usr/lib/libreoffice/program/soffice /usr/bin/soffice && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -29,17 +28,13 @@ WORKDIR /app
 
 # 6️⃣ Copy package.json and install dependencies
 COPY package*.json ./
-RUN npm install --production
+RUN npm install
 
-# 7️⃣ Copy rest of the app
+# 7️⃣ Copy the rest of the project
 COPY . .
 
 # 8️⃣ Expose port
 EXPOSE 5001
 
-# 9️⃣ Optional health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:5001/healthz || exit 1
-
-# 🔟 Start server
+# 9️⃣ Start server
 CMD ["node", "server.js"]
