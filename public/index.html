@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DOCX → PDF Converter</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>DOCX → PDF Converter</h1>
+    <p>Upload your Word document and get a PDF instantly.</p>
+
+    <form id="uploadForm">
+      <label class="file-label" >
+        <input type="file" id="fileInput" name="file" accept=".docx" required />
+        <span id="fileName">No file selected</span>
+      </label>
+      <button type="submit">Convert to pdf</button>
+    </form>
+
+    <div id="message"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
