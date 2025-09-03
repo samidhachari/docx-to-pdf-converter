@@ -26,21 +26,20 @@ app.get("/healthz", (_req, res) => res.status(200).send("ok"));
 
 // API: Convert DOCX → PDF
 app.post("/api/convert", upload.single("file"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send("No file uploaded.");
-  }
+  if (!req.file) return res.status(400).send("No file uploaded.");
 
   const inputPath = req.file.path;
-  const outputPath = path.join(
-    __dirname,
-    "converted",
-    `${Date.now()}.pdf`
-  );
+  const convertedDir = path.join(__dirname, "converted");
 
+  // Ensure converted directory exists
+  if (!fs.existsSync(convertedDir)) fs.mkdirSync(convertedDir);
+
+  const outputPath = path.join(convertedDir, `${Date.now()}.pdf`);
   const fileBuffer = fs.readFileSync(inputPath);
 
   libre.convert(fileBuffer, ".pdf", undefined, (err, done) => {
-    fs.unlinkSync(inputPath); // remove temp upload
+    // Delete uploaded file safely
+    if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
 
     if (err) {
       console.error("❌ Conversion failed: ", err);
@@ -48,12 +47,15 @@ app.post("/api/convert", upload.single("file"), (req, res) => {
     }
 
     fs.writeFileSync(outputPath, done);
-    return res.download(outputPath, "converted.pdf", (err) => {
+
+    // Send the file
+    res.download(outputPath, "converted.pdf", (err) => {
       if (err) console.error("❌ Download error:", err);
-      fs.unlinkSync(outputPath); // delete after sending
+      if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath); // Safe delete
     });
   });
 });
+
 
 // Start server
 app.listen(PORT, () =>
