@@ -1,11 +1,9 @@
-# 1️⃣ Use full Node image (not slim)
-FROM node:20
+FROM node:20-bullseye
 
-# 2️⃣ Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV HOME=/tmp
 
-# 3️⃣ Install LibreOffice + dependencies + fonts
+# Install LibreOffice + all dependencies
 RUN apt-get update && \
     apt-get install -y \
         libreoffice \
@@ -26,27 +24,20 @@ RUN apt-get update && \
         libxt6 \
         libfreetype6 \
         libglib2.0-0 \
-        libxrender1 && \
-    # Ensure soffice binary is accessible
-    ln -sf /usr/lib/libreoffice/program/soffice /usr/bin/soffice && \
-    # Clean up apt caches to reduce image size
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+        libxrender1 \
+        default-jre \
+        gnupg && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 4️⃣ Set working directory
+# Create writable config folder for LibreOffice
+RUN mkdir -p /tmp/.config && chmod -R 777 /tmp/.config
+
+# App setup
 WORKDIR /app
-
-# 5️⃣ Copy Node project files
 COPY package*.json ./
-
-# 6️⃣ Install dependencies
-RUN npm install --production
-
-# 7️⃣ Copy the rest of the project
+RUN npm install
 COPY . .
 
-# 8️⃣ Expose port
 EXPOSE 5001
 
-# 9️⃣ Start the server
 CMD ["node", "server.js"]
