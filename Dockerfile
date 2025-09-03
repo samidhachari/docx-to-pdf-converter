@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV HOME=/tmp
 ENV PORT=5001
 
-# 3️⃣ Install LibreOffice (headless) + fonts + utilities + clean up
+# 3️⃣ Install LibreOffice + fonts + utilities
 RUN apt-get update && \
     apt-get install -y \
         libreoffice \
@@ -17,6 +17,8 @@ RUN apt-get update && \
         xfonts-utils \
         wget \
         unzip && \
+    # 3a️⃣ Symlink soffice to /usr/bin
+    ln -s /usr/lib/libreoffice/program/soffice /usr/bin/soffice && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 4️⃣ Create writable config directory for LibreOffice
